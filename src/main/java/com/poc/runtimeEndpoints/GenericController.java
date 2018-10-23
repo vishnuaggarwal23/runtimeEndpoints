@@ -14,8 +14,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GenericController {
 
+    private final ConfigObject configObject;
+
     @Autowired
-    ConfigObject configObject;
+    public GenericController(final ConfigObject configObject) {
+        this.configObject = configObject;
+    }
 
     public Object getRequest() {
         return "";

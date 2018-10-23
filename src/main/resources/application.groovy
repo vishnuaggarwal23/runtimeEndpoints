@@ -1,36 +1,54 @@
+import org.apache.commons.logging.Log
+import org.springframework.web.servlet.ModelAndView
+
+import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse
+
 urlMapping {
-    post {[
+    post {
+        [
                 search {
-                    url = "/search"
+                    uri = "/search"
                     operation {
                         query {
-                            json = """"""
+                            json = {
+
+                            }
                         }
                         path = "/_mget"
                     }
                     processors {
                         pre {
-                            json = """"""
+                            json = { HttpServletRequest request, HttpServletResponse response, Object handler, Log log ->
+
+                            }
                         }
                         post {
-                            json = """"""
+                            json = { HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView, Log log ->
+
+                            }
                         }
                     }
                 }]
     }
-    get {[
+    get {
+        [
                 autocomplete {
-                    url = "/autocomplete"
+                    uri = "/autocomplete"
                     requestType = "GET"
                     operation {
 
                     }
                     processors {
                         pre {
-                            json = """"""
+                            json = { HttpServletRequest request, HttpServletResponse response, Object handler, Log log ->
+
+                            }
                         }
                         post {
-                            json = """"""
+                            json = { HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView, Log log ->
+
+                            }
                         }
                     }
                 }]
