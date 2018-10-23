@@ -10,17 +10,73 @@ urlMapping {
                 search {
                     uri = "/search"
                     operation {
-                        query {
-                            json = {
-
-                            }
-                        }
+                        query = """{
+                                        "_source": [
+                                            "name",
+                                            "meeting.name",
+                                            "meeting.location",
+                                            "runner.name",
+                                            "runner.trainer.name",
+                                            "runner.jockey.name"
+                                        ],
+                                        "explain": true,
+                                        "query": {
+                                            "dis_max": {
+                                                "queries": [
+                                                    {
+                                                        "multi_match": {
+                                                            "query": "CUSTOM_SEARCH_QUERY",
+                                                            "fields": [
+                                                                "name",
+                                                                "meeting.name",
+                                                                "meeting.location"
+                                                            ],
+                                                            "fuzziness": 1
+                                                        }
+                                                    },
+                                                    {
+                                                        "nested": {
+                                                            "path": "runner",
+                                                            "score_mode": "avg",
+                                                            "query": {
+                                                                "multi_match": {
+                                                                    "query": "CUSTOM_SEARCH_QUERY",
+                                                                    "fields": [
+                                                                        "runner.name",
+                                                                        "runner.trainer.name",
+                                                                        "runner.jockey.name"
+                                                                    ],
+                                                                    "fuzziness": 1
+                                                                }
+                                                            },
+                                                            "inner_hits": {}
+                                                        }
+                                                    }
+                                                ],
+                                                "tie_breaker": 0.3
+                                            }
+                                        },
+                                        "sort": [
+                                            {
+                                                "_score": {
+                                                    "order": "desc"
+                                                }
+                                            },
+                                            {
+                                                "startTime": {
+                                                    "order": "desc"
+                                                }
+                                            }
+                                        ],
+                                        "size": 20,
+                                        "from": 0
+                                    }"""
                         path = "/_mget"
                     }
                     processors {
                         pre {
                             json = { HttpServletRequest request, HttpServletResponse response, Object handler, Log log ->
-
+                                return true
                             }
                         }
                         post {
@@ -42,7 +98,7 @@ urlMapping {
                     processors {
                         pre {
                             json = { HttpServletRequest request, HttpServletResponse response, Object handler, Log log ->
-
+                                return true
                             }
                         }
                         post {

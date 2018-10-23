@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
@@ -40,7 +41,7 @@ public class UrlMappingHandler {
                                 .produces(APPLICATION_JSON_UTF8_VALUE)
                                 .consumes(APPLICATION_JSON_UTF8_VALUE)
                                 .build();
-                        requestMappingHandlerMapping.registerMapping(requestMappingInfo, genericController, GenericController.class.getDeclaredMethod("postRequest", String.class));
+                        requestMappingHandlerMapping.registerMapping(requestMappingInfo, genericController, GenericController.class.getDeclaredMethod("postRequest", String.class, HttpServletRequest.class));
                     } catch (NoSuchMethodException e) {
                         e.printStackTrace();
                     }

@@ -35,6 +35,7 @@ public class UrlInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        boolean validPreHandling = false;
         Map value = getMap(request);
         if (!isEmpty(value)) {
             Map processors = (Map) value.get("processors");
@@ -43,13 +44,12 @@ public class UrlInterceptor implements HandlerInterceptor {
                 if (!isEmpty(pre)) {
                     Object closure = ((Closure) pre.get("json")).call(request, response, handler, log);
                     if (closure instanceof Boolean) {
-                        return (boolean) closure;
+                        validPreHandling = (boolean) closure;
                     }
                 }
             }
-            return true;
         }
-        return false;
+        return validPreHandling;
     }
 
     @Override
