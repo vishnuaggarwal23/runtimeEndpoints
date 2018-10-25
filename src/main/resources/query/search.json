@@ -1,0 +1,60 @@
+{
+  "_source": [
+    "name",
+    "meeting.name",
+    "meeting.location",
+    "runner.name",
+    "runner.trainer.name",
+    "runner.jockey.name"
+  ],
+  "query": {
+    "dis_max": {
+      "queries": [
+        {
+          "multi_match": {
+            "query": "##SEARCH_QUERY##",
+            "fields": [
+              "name",
+              "meeting.name",
+              "meeting.location"
+            ],
+            "fuzziness": 1
+          }
+        },
+        {
+          "nested": {
+            "path": "runner",
+            "score_mode": "avg",
+            "query": {
+              "multi_match": {
+                "query": "##SEARCH_QUERY##",
+                "fields": [
+                  "runner.name",
+                  "runner.trainer.name",
+                  "runner.jockey.name"
+                ],
+                "fuzziness": 1
+              }
+            },
+            "inner_hits": {}
+          }
+        }
+      ],
+      "tie_breaker": 0.3
+    }
+  },
+  "sort": [
+    {
+      "_score": {
+        "order": "desc"
+      }
+    },
+    {
+      "startTime": {
+        "order": "desc"
+      }
+    }
+  ],
+  "size": "##MAX##",
+  "from": "##OFFSET##"
+}

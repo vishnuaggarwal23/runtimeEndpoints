@@ -1,9 +1,10 @@
-package com.poc.runtimeEndpoints;
+package com.ttn.elasticsearchAPI.interceptor;
 
 /*
 Created by vishnu on 15/10/18 1:16 PM
 */
 
+import com.ttn.elasticsearchAPI.util.ConfigHelper;
 import groovy.lang.Closure;
 import groovy.util.ConfigObject;
 import lombok.extern.apachecommons.CommonsLog;
@@ -24,13 +25,13 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 @CommonsLog
 @Component
-public class UrlInterceptor implements HandlerInterceptor {
+public class RequestInterceptor implements HandlerInterceptor {
 
-    private final ConfigObject configObject;
+    private final ConfigHelper configHelper;
 
     @Autowired
-    public UrlInterceptor(ConfigObject configObject) {
-        this.configObject = configObject;
+    public RequestInterceptor(ConfigHelper configHelper) {
+        this.configHelper = configHelper;
     }
 
     @Override
@@ -42,7 +43,7 @@ public class UrlInterceptor implements HandlerInterceptor {
             if (!isEmpty(processors)) {
                 Map pre = (Map) processors.get("pre");
                 if (!isEmpty(pre)) {
-                    Object closure = ((Closure) pre.get("json")).call(request, response, handler, log);
+                    Object closure = ((Closure) pre.get("json")).call(request, response, handler);
                     if (closure instanceof Boolean) {
                         validPreHandling = (boolean) closure;
                     }
@@ -60,7 +61,7 @@ public class UrlInterceptor implements HandlerInterceptor {
             if (!isEmpty(processors)) {
                 Map post = (Map) processors.get("post");
                 if (!isEmpty(post)) {
-                    ((Closure) post.get("json")).call(request, response, handler, modelAndView, log);
+                    ((Closure) post.get("json")).call(request, response, handler, modelAndView);
                 }
             }
         }
@@ -69,7 +70,7 @@ public class UrlInterceptor implements HandlerInterceptor {
     private Map getMap(HttpServletRequest request) {
         final String uri = request.getRequestURI();
         final RequestMethod requestMethod = RequestMethod.valueOf(request.getMethod());
-        final ConfigObject urlMapping = (ConfigObject) configObject.get("urlMapping");
+        final ConfigObject urlMapping = (ConfigObject) configHelper.getAPIConfig();
         Map value = emptyMap();
         if (!isEmpty(urlMapping)) {
             if (requestMethod == GET) {

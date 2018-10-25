@@ -1,5 +1,7 @@
-package com.poc.runtimeEndpoints;
+package com.ttn.elasticsearchAPI.init;
 
+import com.ttn.elasticsearchAPI.interceptor.RequestInterceptor;
+import com.ttn.elasticsearchAPI.util.ConfigHelper;
 import groovy.util.ConfigObject;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,27 +21,29 @@ Created by vishnu on 15/10/18 1:30 PM
 
 @Configuration
 @CommonsLog
-public class ApplicationConfig implements WebMvcConfigurer {
+public class ApplicationConfigurer implements WebMvcConfigurer {
 
-    private final UrlInterceptor urlInterceptor;
-    private final ConfigObject configObject;
+    private final RequestInterceptor requestInterceptor;
+    private final ConfigHelper configHelper;
 
     @Autowired
-    public ApplicationConfig(
-            final UrlInterceptor urlInterceptor,
-            final ConfigObject configObject) {
-        this.urlInterceptor = urlInterceptor;
-        this.configObject = configObject;
+    public ApplicationConfigurer(
+            final RequestInterceptor requestInterceptor,
+            final ConfigHelper configHelper) {
+        this.requestInterceptor = requestInterceptor;
+        this.configHelper = configHelper;
     }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(urlInterceptor).addPathPatterns(getUriPaths());
+        registry.addInterceptor(requestInterceptor).addPathPatterns(getUriPaths());
     }
+
+
 
     private List<String> getUriPaths() {
         List<String> paths = new ArrayList<String>();
-        final ConfigObject urlMapping = (ConfigObject) configObject.get("urlMapping");
+        final ConfigObject urlMapping = configHelper.getAPIConfig();
         if (!isEmpty(urlMapping)) {
             paths.addAll(addToPaths((ConfigObject) urlMapping.get("post")));
             paths.addAll(addToPaths((ConfigObject) urlMapping.get("get")));

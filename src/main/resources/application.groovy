@@ -1,31 +1,42 @@
-import org.apache.commons.logging.Log
+import org.springframework.core.MethodParameter
+import org.springframework.http.MediaType
+import org.springframework.http.converter.HttpMessageConverter
+import org.springframework.http.server.ServerHttpRequest
+import org.springframework.http.server.ServerHttpResponse
 import org.springframework.web.servlet.ModelAndView
 
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
-urlMapping {
+elasticsearch {
+    url = "http://localhost"
+    port = 9200
+
+}
+
+
+api {
     post {
-        [
-                search {
-                    uri = "/search"
-                    operation {
-                        query = """{
-                                        "_source": [
-                                            "name",
-                                            "meeting.name",
-                                            "meeting.location",
-                                            "runner.name",
-                                            "runner.trainer.name",
-                                            "runner.jockey.name"
-                                        ],
-                                        "explain": true,
+
+        searchAgain {
+            uri = "/searchAgain"
+            operation {
+                path = "raceclips/_search"
+
+            }
+        }
+
+        search {
+            uri = "/search"
+            operation {
+                path = "raceclips/_search"
+                query = """{
                                         "query": {
                                             "dis_max": {
                                                 "queries": [
                                                     {
                                                         "multi_match": {
-                                                            "query": "CUSTOM_SEARCH_QUERY",
+                                                            "query": "##SEARCH_QUERY##",
                                                             "fields": [
                                                                 "name",
                                                                 "meeting.name",
@@ -40,7 +51,7 @@ urlMapping {
                                                             "score_mode": "avg",
                                                             "query": {
                                                                 "multi_match": {
-                                                                    "query": "CUSTOM_SEARCH_QUERY",
+                                                                    "query": "##SEARCH_QUERY##",
                                                                     "fields": [
                                                                         "runner.name",
                                                                         "runner.trainer.name",
@@ -48,8 +59,7 @@ urlMapping {
                                                                     ],
                                                                     "fuzziness": 1
                                                                 }
-                                                            },
-                                                            "inner_hits": {}
+                                                            }
                                                         }
                                                     }
                                                 ],
@@ -68,24 +78,25 @@ urlMapping {
                                                 }
                                             }
                                         ],
-                                        "size": 20,
-                                        "from": 0
+                                        "size": ##MAX##,
+                                        "from": ##OFFSET##
                                     }"""
-                        path = "/_mget"
+            }
+            processors {
+                pre {
+                    json = { HttpServletRequest request, HttpServletResponse response, Object handlerRequestMethod ->
+                        return true
                     }
-                    processors {
-                        pre {
-                            json = { HttpServletRequest request, HttpServletResponse response, Object handler, Log log ->
-                                return true
-                            }
-                        }
-                        post {
-                            json = { HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView, Log log ->
-
-                            }
-                        }
+                }
+                post {
+                    json = { Object body, MethodParameter returnType, MediaType selectedContentType, Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request, ServerHttpResponse response ->
+                        println "Response is : ${response}, ${response.body.toString()}"
+                        println "1"
+                        println "2"
                     }
-                }]
+                }
+            }
+        }
     }
     get {
         [
@@ -97,12 +108,12 @@ urlMapping {
                     }
                     processors {
                         pre {
-                            json = { HttpServletRequest request, HttpServletResponse response, Object handler, Log log ->
+                            json = { HttpServletRequest request, HttpServletResponse response, Object handlerRequestMethod ->
                                 return true
                             }
                         }
                         post {
-                            json = { HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView, Log log ->
+                            json = { HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndViewRequestMethod ->
 
                             }
                         }

@@ -1,9 +1,12 @@
-package com.poc.runtimeEndpoints;
+package com.ttn.elasticsearchAPI.init;
 
 /*
 Created by vishnu on 12/10/18 9:53 AM
 */
 
+import com.ttn.elasticsearchAPI.co.SearchCO;
+import com.ttn.elasticsearchAPI.controller.GenericController;
+import com.ttn.elasticsearchAPI.util.ConfigHelper;
 import groovy.util.ConfigObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -19,15 +22,15 @@ import static org.springframework.util.CollectionUtils.isEmpty;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 @Configuration
-public class UrlMappingHandler {
+public class URLMappingBuilder {
 
     @Autowired
-    public UrlMappingHandler(
+    public URLMappingBuilder(
             final RequestMappingHandlerMapping requestMappingHandlerMapping,
             final GenericController genericController,
-            final ConfigObject configObject) {
+            final ConfigHelper configHelper) {
 
-        final ConfigObject urlMapping = (ConfigObject) configObject.get("urlMapping");
+        final ConfigObject urlMapping = configHelper.getAPIConfig();
         if (!isEmpty(urlMapping)) {
             final ConfigObject post = (ConfigObject) urlMapping.get("post");
             final ConfigObject get = (ConfigObject) urlMapping.get("get");
@@ -41,7 +44,7 @@ public class UrlMappingHandler {
                                 .produces(APPLICATION_JSON_UTF8_VALUE)
                                 .consumes(APPLICATION_JSON_UTF8_VALUE)
                                 .build();
-                        requestMappingHandlerMapping.registerMapping(requestMappingInfo, genericController, GenericController.class.getDeclaredMethod("postRequest", String.class, HttpServletRequest.class));
+                        requestMappingHandlerMapping.registerMapping(requestMappingInfo, genericController, GenericController.class.getDeclaredMethod("postRequest", SearchCO.class, HttpServletRequest.class));
                     } catch (NoSuchMethodException e) {
                         e.printStackTrace();
                     }
