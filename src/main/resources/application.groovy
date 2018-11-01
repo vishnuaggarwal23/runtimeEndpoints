@@ -1,3 +1,5 @@
+import com.ttn.elasticsearchAPI.dto.ResponseDTO
+import groovy.json.JsonSlurper
 import org.springframework.core.MethodParameter
 import org.springframework.http.MediaType
 import org.springframework.http.converter.HttpMessageConverter
@@ -81,6 +83,7 @@ api {
                                         "size": ##MAX##,
                                         "from": ##OFFSET##
                                     }"""
+                responseFilters = "took,hits.total,hits.hits._source"
             }
             processors {
                 pre {
@@ -89,10 +92,19 @@ api {
                     }
                 }
                 post {
-                    json = { Object body, MethodParameter returnType, MediaType selectedContentType, Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request, ServerHttpResponse response ->
-                        println "Response is : ${response}, ${response.body.toString()}"
-                        println "1"
-                        println "2"
+                    json = { ResponseDTO body, MethodParameter returnType, MediaType selectedContentType, Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request, ServerHttpResponse response ->
+                        def responseJSON = new JsonSlurper().parseText(body.getSearchResponse())
+                        Map modifiedResponse = [
+                                data   : [
+                                        totalCount: responseJSON.hits.total,
+                                        max       : body.max,
+                                        offset    : body.offset,
+                                        items     : responseJSON.hits.hits
+                                ],
+                                message: body.status.statusCode == 200 ? "SUCCESS" : "FAILURE",
+                                code   : responseJSON.hits.total as int ? 0 : 1
+                        ]
+                        modifiedResponse
                     }
                 }
             }
@@ -118,7 +130,11 @@ api {
                             }
                         }
                     }
-                }]
+                }
+        ]
     }
 }
+
+
+
 

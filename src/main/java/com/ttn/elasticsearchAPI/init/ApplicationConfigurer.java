@@ -15,9 +15,6 @@ import java.util.Map;
 
 import static org.springframework.util.CollectionUtils.isEmpty;
 
-/*
-Created by vishnu on 15/10/18 1:30 PM
-*/
 
 @Configuration
 @CommonsLog

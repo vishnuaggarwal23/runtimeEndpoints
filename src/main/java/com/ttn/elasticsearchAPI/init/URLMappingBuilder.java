@@ -1,9 +1,5 @@
 package com.ttn.elasticsearchAPI.init;
 
-/*
-Created by vishnu on 12/10/18 9:53 AM
-*/
-
 import com.ttn.elasticsearchAPI.co.SearchCO;
 import com.ttn.elasticsearchAPI.controller.GenericController;
 import com.ttn.elasticsearchAPI.util.ConfigHelper;

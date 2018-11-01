@@ -1,16 +1,12 @@
 package com.ttn.elasticsearchAPI.controller;
 
-/*
-Created by vishnu on 11/10/18 2:41 PM
-*/
-
 import com.ttn.elasticsearchAPI.co.SearchCO;
+import com.ttn.elasticsearchAPI.dto.ResponseDTO;
 import com.ttn.elasticsearchAPI.dto.SearchDTO;
 import com.ttn.elasticsearchAPI.service.GenericService;
 import com.ttn.elasticsearchAPI.util.ConfigHelper;
 import com.ttn.elasticsearchAPI.util.QueryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -40,20 +36,24 @@ public class GenericController {
         return "";
     }
 
-    public String postRequest(@Valid @RequestBody SearchCO searchCO, HttpServletRequest httpServletRequest) {
-        String response = "";
+    public ResponseDTO postRequest(@Valid @RequestBody SearchCO searchCO, HttpServletRequest httpServletRequest) {
+        ResponseDTO responseDTO = null;
         try {
-            response = genericService.search(generateSearchDTO(searchCO, httpServletRequest));
+            responseDTO = genericService.search(generateSearchDTO(searchCO, httpServletRequest));
         } catch (IOException e) {
             e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
         }
-        return response;
+        return responseDTO;
     }
 
-    private SearchDTO generateSearchDTO(SearchCO searchCO, HttpServletRequest currentRequest) throws JSONException {
-        String query = queryBuilder.generateSearchQuery(searchCO);
-        return new SearchDTO(query, configHelper.getSearchIndexPath(currentRequest), currentRequest.getMethod());
+    private SearchDTO generateSearchDTO(SearchCO searchCO, HttpServletRequest currentRequest) {
+        return new SearchDTO(
+                queryBuilder.generateSearchQuery(searchCO),
+                configHelper.getSearchIndexPath(),
+                currentRequest.getMethod(),
+                configHelper.getResponseFilters(),
+                searchCO.getLimit(),
+                searchCO.getOffset()
+        );
     }
 }

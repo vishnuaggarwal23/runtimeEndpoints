@@ -3,7 +3,7 @@ package com.ttn.elasticsearchAPI.util;
 
 import groovy.util.ConfigObject;
 import groovy.util.ConfigSlurper;
-import org.springframework.context.annotation.Bean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -18,6 +18,9 @@ import java.util.Map;
 @Primary
 @Component
 public class ConfigHelper {
+
+    @Autowired
+    private HttpServletRequest currentRequest;
 
     private ConfigObject configObject;
 
@@ -40,7 +43,7 @@ public class ConfigHelper {
         return (ConfigObject) getAPIConfig().get("post");
     }
 
-    private ConfigObject getAPIConfigForCurrentRequest(HttpServletRequest currentRequest) {
+    private ConfigObject getAPIConfigForCurrentRequest() {
         return apiConfigMap.get(currentRequest.getMethod()).get(currentRequest.getRequestURI());
     }
 
@@ -63,13 +66,23 @@ public class ConfigHelper {
         return (String) getElasticSearchConfig().get("url");
     }
 
-    public String getSearchIndexPath(HttpServletRequest currentRequest) {
-        ConfigObject configObject = getAPIConfigForCurrentRequest(currentRequest);
+    public String getSearchIndexPath() {
+        ConfigObject configObject = getAPIConfigForCurrentRequest();
         return (String) ((ConfigObject) configObject.get("operation")).get("path");
     }
 
-    public String getSearchQuery(HttpServletRequest currentRequest) {
-        ConfigObject configObject = getAPIConfigForCurrentRequest(currentRequest);
+    public String getSearchQuery() {
+        ConfigObject configObject = getAPIConfigForCurrentRequest();
         return (String) ((ConfigObject) configObject.get("operation")).get("query");
+    }
+
+    public String getResponseFilters() {
+        ConfigObject configObject = getAPIConfigForCurrentRequest();
+        return (String) ((ConfigObject) configObject.get("operation")).get("responseFilters");
+    }
+
+    public ConfigObject getProcessorMap() {
+        ConfigObject configObject = getAPIConfigForCurrentRequest();
+        return ((ConfigObject) configObject.get("processors"));
     }
 }
